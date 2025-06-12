@@ -29,4 +29,7 @@
             const dynamicStyle = (isActive) => ({
                 backgroundColor: isActive ? 'green' : 'red',
             });
+
+
+        L'objet stylesheet doit être déclarer à l'extérieure de méthode.
  */
