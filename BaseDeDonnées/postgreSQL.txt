@@ -52,3 +52,59 @@ Créer les tables	    Via NestJS/TypeORM ou en SQL
 Créer les tables manuellement est parfait pour apprendre le SQL en profondeur, 
 et comprendre ensuite comment NestJS/TypeORM reproduit ça automatiquement t’aidera à faire le lien entre code et base de données.
 
+Étapes à suivre
+On va suivre cet ordre :
+
+1.🔧 Créer une base PostgreSQL
+2.👤 Créer un utilisateur PostgreSQL
+3.🔐 Donner les droits à l’utilisateur
+4.🗃️ Créer une table users à la main en SQL
+5.🔄 Te montrer comment NestJS et TypeORM feraient la même chose
+6.🧪 Connecter NestJS à ta base pour utiliser les données
+
+1. Créer la base de données :
+Dans ton terminal PostgreSQL (psql) :
+CREATE DATABASE horsesinshape;
+
+2. Créer un utilisateur :
+CREATE USER horses_admin WITH PASSWORD 'admin123';
+
+3. Donner les droits à l’utilisateur :
+GRANT ALL PRIVILEGES ON DATABASE horsesinshape TO horses_admin;
+
+
+
+-------------------------------------------------------------------------
+Non merci, pas pour le moment. Cependant, pourquoi donnée des droits à l'utilisateur ? 
+Je ne vois pas encore le principe à l'heure actuel. Nous lui donnons les droits sur notre bases de données ? 
+Qui elle auras plusieurs tables ? Il est un simple user qui va avoir un simple compte ou alors c'est un user qui va tout
+ controler et même les tables des autres users ?
+-------------------------------------------------------------------------
+Très bonne question, c’est important de bien comprendre la différence entre les utilisateurs PostgreSQL et les utilisateurs de ton application.
+
+1. L’utilisateur PostgreSQL (horses_admin)
+C’est un compte utilisé pour se connecter à la base de données.
+Cet utilisateur sert à gérer la base depuis ton backend (par exemple NestJS).
+Il peut avoir des droits limités ou étendus selon ce que tu lui accordes.
+Dans ton cas, on lui donne tous les droits sur la base horsesinshape pour que ton backend puisse créer, lire, mettre à jour, supprimer (CRUD) des tables et données sans problème.
+
+2. Les utilisateurs de ton application (ex : un vrai utilisateur avec email, mot de passe)
+Ce sont les personnes qui vont utiliser ton app mobile ou web.
+Ils ne se connectent jamais directement à la base.
+Ils ont des comptes dans ta table users (et autres tables).
+Leurs droits d’accès et permissions sont gérés dans l’app (backend + frontend), via la logique métier.
+
+Pourquoi donner des droits à horses_admin ?
+Ton serveur backend (NestJS) utilise ce compte pour interagir avec la base (ex : via TypeORM).
+Sans droits suffisants, ton backend ne pourra pas créer de tables, ni lire ou modifier des données.
+Ce compte est donc un compte technique, pas un utilisateur final.
+
+À quoi sert ce compte technique ?
+Administrer la base : créer tables, faire des migrations, insérer des données, etc.
+Exécuter les requêtes nécessaires au fonctionnement de ton app, avec un accès contrôlé.
+Tu peux limiter ses droits si besoin (ex : en production, éviter les droits de création, etc.).
+
+Résumé visuel
+Rôle	            Accès direct base ?	        Usage	                            Droits habituels
+Utilisateur         PostgreSQL	                Oui	Backend + administration base	Droits sur DB (création, modif)
+Utilisateur         application	                Non	Utilisateur final de l’app	    Droits limités dans l’app
