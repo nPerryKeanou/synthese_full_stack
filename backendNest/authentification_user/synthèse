@@ -1,0 +1,15 @@
+Nous allons créer un système simple de création de compte.
+
+Fonctionnalités :
+✅ Enregistrer un nouvel utilisateur (POST /auth/register)
+✅ (Plus tard) Se connecter (POST /auth/login)
+✅ (Optionnel ensuite) Protéger certaines routes avec un token JWT
+
+Stack que nous allons utiliser : 
+NestJs (bakcend)
+TypeOrm (ORM pour postgreSQL)
+PostgreSQL(base de données)
+bcrypt(pour hasher les mots de passes)
+class-validator (validation des inputs)
+axios + React Native( coté mobile)
+

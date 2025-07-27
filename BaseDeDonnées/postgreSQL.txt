@@ -1,0 +1,54 @@
+Nous allons ici utiliser le terminal pour utiliser postgresql car mon ordinateur est trop vieux pour utiliser pgAdmin.
+Ceci va nous permettre de mieux comprendre le système.
+
+1) Vérifie que PostgreSQL est installé
+psql --version
+
+Tu dois voir quelque chose comme psql (PostgreSQL) 16.x.
+Si tu obtiens une erreur, installe PostgreSQL avec Homebrew :
+
+brew install postgresql
+brew services start postgresql (Ne jamais oublier d'éteindre postgresql à la fin de chaque utilisation)
+
+2) Accède à la console PostgreSQL
+psql postgres
+
+3) Crée une base de données
+CREATE DATABASE horsesinshape;
+
+Tu peux vérifier qu'elle a bien été créée :
+sql :
+    \l
+
+
+-----------------------------------------------------------------------------------------
+je ne devrais pas d'abord créer une bases de données et ensuite une table et ensuite un user ?
+-----------------------------------------------------------------------------------------
+
+Voici la réponse claire :
+L’ordre recommandé est bien celui que tu proposes, sauf dans certains cas pratiques.
+
+Ordre logique idéal (comme en théorie ou en entreprise) :
+Créer la base de données
+Créer les rôles/utilisateurs PostgreSQL
+Donner les permissions à l’utilisateur sur la base
+Créer les tables et structures via ton application (ex: NestJS + TypeORM)
+
+Alors pourquoi j’ai proposé l’inverse (utilisateur d'abord) ?
+Dans un workflow projet local moderne avec NestJS, on fait souvent :
+Créer l’utilisateur d’abord (parce que NestJS en a besoin pour accéder à la BDD)
+Puis on crée la base de données en lui assignant directement l’utilisateur
+Ensuite NestJS (via TypeORM) crée les tables automatiquement avec synchronize: true
+Donc pas besoin de créer les tables manuellement !
+
+Ce que tu peux retenir :
+Étape	                Pourquoi ?
+Créer la base	        Contenant principal
+Créer le rôle (user)	Pour sécuriser les accès
+Donner les droits	    Pour que l’utilisateur gère sa base
+Créer les tables	    Via NestJS/TypeORM ou en SQL
+
+
+Créer les tables manuellement est parfait pour apprendre le SQL en profondeur, 
+et comprendre ensuite comment NestJS/TypeORM reproduit ça automatiquement t’aidera à faire le lien entre code et base de données.
+

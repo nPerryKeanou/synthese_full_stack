@@ -43,3 +43,11 @@ const insets = useSafeAreaInsets();
   ...
   </View>
 */
+
+
+/*
+- headershown
+- safeAreaView
+- flex 
+
+*/

@@ -1,0 +1,144 @@
+Très bonne question, car le CORS est une source de confusion pour beaucoup, surtout quand on débute avec les API ou le développement web en général.
+
+🌐 Qu'est-ce que CORS ?
+CORS signifie :
+
+Cross-Origin Resource Sharing
+(traduction : Partage de ressources entre origines différentes)
+
+C’est une politique de sécurité des navigateurs web.
+
+🎯 But de CORS :
+Empêcher des sites malveillants d’appeler des ressources (ex : API) qui ne leur appartiennent pas sans autorisation.
+
+🧠 Expliqué simplement :
+Imaginons :
+
+Tu as ton site frontend sur http://mon-site.com
+
+Tu veux appeler une API sur https://api-autre-site.com
+
+➡️ Le navigateur va dire :
+"Hey, tu veux accéder à une autre origine que la tienne, est-ce que ce serveur te donne l’autorisation ?"
+
+Et si le serveur distant ne permet pas explicitement cet accès, le navigateur bloque la requête (erreur CORS).
+
+🔐 Qu'est-ce qu'une origine ?
+Une origine, c’est :
+
+protocole + domaine + port
+Donc :
+
+http://localhost:3000 ≠ http://localhost:4000
+
+http://example.com ≠ https://example.com
+
+🔥 Exemple d’erreur typique CORS dans la console du navigateur :
+
+Access to fetch at 'https://api.autre-site.com/data' from origin 'http://localhost:3000' 
+has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present...
+✅ Comment autoriser une origine (côté serveur)
+Le serveur API doit répondre avec un en-tête HTTP :
+
+
+Access-Control-Allow-Origin: http://localhost:3000
+Ou, pour autoriser toutes les origines (ce qu’on évite en prod) :
+
+
+Access-Control-Allow-Origin: *
+💡 Concrètement, quand tu codes…
+Si tu es côté frontend (React, etc.) :
+Tu ne peux rien faire contre le CORS dans ton code client.
+
+C’est au serveur API de donner l’autorisation.
+
+Si tu es aussi côté backend (Node.js/Express, etc.) :
+Tu peux ajouter CORS comme middleware :
+
+
+// Express + CORS
+const express = require('express');
+const cors = require('cors');
+const app = express();
+
+app.use(cors()); // autorise tout (dangereux en prod)
+// ou pour une origine spécifique :
+app.use(cors({
+  origin: 'http://localhost:3000'
+}));
+
+🔒 Important :
+Situation	CORS ?
+API appelée depuis un navigateur vers une autre origine	✅ Oui, CORS s’applique
+API appelée depuis le backend (Node, etc.)	❌ Non, CORS ne s’applique pas
+API appelée depuis Postman ou curl	❌ Non, CORS ne s’applique pas
+
+----------------------------------------------------------------------------------------------------------------------------
+
+Tu viens de franchir une étape clé dans le développement mobile avec un backend local. Voici une explication claire, complète et structurée de ce que nous venons de faire et pourquoi :
+
+🧱 Objectif du projet
+Tu développes une application mobile (front avec React Native + Expo Go) qui communique avec un backend NestJS (Node.js + TypeScript) tournant sur ton ordinateur.
+L'application sur ton téléphone doit pouvoir faire des requêtes HTTP (comme GET, POST) vers ce backend pour obtenir ou envoyer des données (ex : pokémons, utilisateurs, etc.).
+
+🔄 Pourquoi connecter ton téléphone au backend local ?
+🔹 Ce que tu veux faire :
+Ton app mobile appelle api.get('/')
+
+Le backend doit répondre avec par exemple { message: "Hello world" }
+
+Mais si tu utilises localhost, le téléphone croit que ça veut dire "lui-même", donc il n'accède pas à ton PC, ce qui provoque l’erreur "Erreur de connexion".
+
+🔹 Ce qu’on a fait :
+✅ Configurer l’IP locale de ton PC dans le fichier api.ts :
+
+
+baseURL: 'http://192.168.1.42:3000'
+✅ Faire écouter le backend sur toutes les interfaces réseau :
+
+
+await app.listen(3000, '0.0.0.0');
+✅ Activer le CORS (pour permettre à une app sur un autre domaine d'accéder au backend) :
+
+
+app.enableCors({ origin: '*' });
+✅ Tester dans le navigateur de ton téléphone si l’URL fonctionne :
+
+
+http://192.168.1.42:3000/
+→ Si cette URL fonctionne dans le navigateur du téléphone, Expo Go pourra aussi y accéder ✅
+
+🌐 Pourquoi ouvrir la page web depuis ton téléphone ?
+Parce que :
+
+Tu veux confirmer que ton téléphone voit ton backend.
+
+Si le navigateur n’y arrive pas, l’app non plus ne pourra pas.
+
+C’est donc une étape de débogage réseau très utile.
+
+📱 À quoi sert Expo Go ici ?
+Expo Go affiche l’application mobile (le front) que tu développes avec React Native.
+
+Il ne contient pas le backend, mais il permet à ton téléphone de :
+
+Voir le design, l’interface
+
+Tester les requêtes envoyées au backend
+
+🧠 Résumé visuel
+
+[App React Native dans Expo Go sur ton téléphone]
+            |
+            |  → axios.get('http://192.168.1.42:3000/')
+            ↓
+[Backend NestJS sur ton PC (port 3000)]
+✅ Tu as maintenant :
+Un frontend mobile React Native qui tourne sur ton téléphone
+
+Un backend NestJS qui tourne sur ton PC
+
+Les deux communiquent ensemble via HTTP
+
+Tu es prêt à créer de vraies fonctionnalités 🎯
+
