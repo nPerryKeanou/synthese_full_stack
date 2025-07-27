@@ -71,8 +71,38 @@ CREATE USER horses_admin WITH PASSWORD 'admin123';
 
 3. Donner les droits à l’utilisateur :
 GRANT ALL PRIVILEGES ON DATABASE horsesinshape TO horses_admin;
+        Décorticage de la commande
+    GRANT
+        C’est le mot-clé qui sert à accorder des droits (permissions) à un utilisateur ou un rôle PostgreSQL.
+    ALL PRIVILEGES
+        Cela signifie que tous les droits possibles sont accordés. Par exemple :
+            se connecter à la base
+            créer des tables
+            modifier des données
+            supprimer des objets
+            etc.
+    ON DATABASE horsesinshape
+        Cible la base de données horsesinshape sur laquelle les droits sont accordés.
+    TO horses_admin
+        Désigne le rôle (utilisateur) horses_admin qui reçoit ces droits.
 
 
+    Ensuite, connecte-toi à la base nouvellement créée :
+    \c horsesinshape
+
+    GRANT ALL PRIVILEGES ON SCHEMA public TO horses_admin;
+        ceci sert à donner tout les droits sur toutes les tables à l'admin.
+
+4. Créer une table users:
+Toujours dans horsesinshape, exécute :
+    CREATE TABLE users (id SERIAL PRIMARY KEY, email VARCHAR(255) UNIQUE NOT NULL, password VARCHAR(255) NOT NULL, created_at TIMESTAMP DEFAULT NOW());
+
+    Explication rapide :
+    Colonne	        Type	            Rôle
+    id	            SERIAL	            auto-incrément (clé primaire)
+    email	        VARCHAR	            chaîne de caractères
+    password	    VARCHAR	            mot de passe hashé
+    created_at	    TIMESTAMP	        date de création auto
 
 -------------------------------------------------------------------------
 Non merci, pas pour le moment. Cependant, pourquoi donnée des droits à l'utilisateur ? 
