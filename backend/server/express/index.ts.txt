@@ -1,14 +1,14 @@
 ////////////////////////////////////////////
 import express, { Request, Response } from 'express';
 
-const app = express();
-app.use(express.json());
+const server = express();
+server.use(express.json());
 
-app.get('/', (req: Request, res: Response) => {
+server.get('/', (req: Request, res: Response) => {
   res.send({ message: 'API en ligne depuis Node.js + TypeScript' });
 });
 
-app.listen(3000, () => {
+server.listen(3000, '0.0.0.0', () => {
   console.log('Serveur backend démarré sur http://192.168.1.18:3000');
 });
 ////////////////////////////////////////////
@@ -32,8 +32,8 @@ Voici une explication claire, ligne par ligne.
     - Quand quelqu'un accède à http://localhost:3000/, le serveur renvoie :
         " {"message": "API en ligne depuis Node.js + Typescript"} "
 
-* /# server.listen(3000, () => {...}); #/
-    - Lance le serveur HTTP sur le port 3000
+* /# server.listen(3000, '0.0.0.0', () => {...}); #/
+    - Lance le serveur HTTP sur le port 3000 et sur le réseau local.
     - Une fois démarré, il affiche :
         Serveur backend démarrré sur http://192.168.x.x:3000
 
