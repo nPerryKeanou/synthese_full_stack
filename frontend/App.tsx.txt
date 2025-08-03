@@ -1,0 +1,42 @@
+import { useEffect, useState } from 'react';   
+import { Text, View } from 'react-native';
+import { api } from '../mobile/api/api';
+
+export default function App(){
+	const [message, setMessage] = useState('');
+
+	useEffect(() => {
+		api.get('/')
+			.then(res => setMessage(res.data.message))
+			.catch(err => setMessage('Erreur de connexion))
+	}, []);
+
+	return (
+		<View style={{ flex: 1, justifyContent: 'center', alignItems :'center', }}>
+			<Text>{message || 'Chargement...}</Text>
+		</View>
+	);
+}
+
+---------------------------------------------------------------------------------
+import { useEffect, useState } from 'react';   
+// React hooks : useEffect pour les effets de bors (ex: appel API), useState pour stocker l'état local.
+
+import { Text, View } from 'react-native';
+// Composant UI de base pour afficher du texte et des conteneurs.
+
+import { api } from '../mobile/api/api';
+// Import d'une instance axios configurée pour communiquer avec notre backend.
+
+export default function App() {
+  const [message, setMessage] = useState('');
+// Variable d'état pour stocker le message reçu du backend.
+
+useEffect(() => {
+    api.get('/') 
+// Dès que le composant se monte, on fait une requête GET à la racine.
+	.then(res => setMessage(res.datat.message))
+//		Si ça marche, on récupre le message et on l'enregistre dans l'état.
+	.catch(err => setMessage('Erreur de connexion'));
+//		Si erreur, on affiche un message d'erreur.
+
