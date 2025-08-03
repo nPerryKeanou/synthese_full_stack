@@ -1,0 +1,10 @@
+import axios from 'axios';
+
+export const api = axios.create({
+    baseURL: 'http://nb.nb.nb.nb:3000',
+});
+
+----------------------------------------------------------------
+
+baseURL: 'http://nb.nb.nb.nb:3000',
+// L'adresse du backend sur mon pc.
