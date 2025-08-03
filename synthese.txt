@@ -1,0 +1,34 @@
+Synthèse du projet HorsesInShape-lite
+
+1. Environnement & outils installés :
+    * Nodes.js et npm pour gérer le backend et les dépendances.
+    * TypeScript pour un typage plus sûr dans le code backend et frontend.
+    * React native + Expo Go pour le développement mobile multiplateforme (IOS & Android).
+    * PostgreSQL installé en local pour la gestion des données.
+    * Postman pour tester toutes les API.
+    * Terminal macOS pour intéragir avec Postgresql, car pgadmin n'est pas compatible.
+
+2. Backend Express + TypeScript :
+    * Création d'un backend minimal avec Express et TypeScript.
+    * Ce backend écoute sur tout les interaces réseau (IP 0.0.0.0), port 3000.
+    * Une route GET / qui renvoie un simple JSON {message : 'API en ligne depuis node.js + Typescript'}.
+    * Le serveur est accesible depuis le réseau local, donc ton téléphone peut s'y connecter via l'IP de ton pc.
+
+3. Front React Native + Expo :
+    * Mise en place du porjet Expo avec React Native, visible sur ton téléphone via Expo Go.
+    * Un fichier App.tsx avec un useEffect qui appelle la route / de ton backend.
+    * Affichage sur le téléphone du message reçu depuis le backend.
+    * Connexion établie entre ton application mobile et ton serveur backend local via le WI-FI, sans héberger le backend sur le téléphone.
+
+4. Communication entre Front et Back :
+    * Utilisation d'Axios (client HTTP) dans le frontend pour faire des requêtes versle backend.
+    * Gestion des erreurs basiques (ex: afficher " Erreur de connexion" si la requêtes échoue).
+    * Importance d'utiliser l'IP local de la machine ( pas de localhost) pour que le téléphone accède au serveur.
+
+5. Configuration importante : 
+    * Le backend est configuré pour écouter sur toutes les interfaces (0.0.0.0), ce qui permet l'accès réseau local.
+    * CORS sera à configurer pour autoriser uniquement l'IP et le port d'Expo Go pour la sécurité.
+    * Version de Node.js adaptée (campatible avec MacOS) pour éviter des erreurs système.
+
+A ce stade, j'ai un backend qui tourne et qui communique parfaitement avec mon front sur téléphone. Ce socle solide me permet maintenant d'ajouter une vrai logique métier (gestiion utilisateur ) en base de données.
+
