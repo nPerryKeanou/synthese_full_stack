@@ -1,0 +1,97 @@
+Ici, on va comprendre la relation entre le front et le back, notament les routes, Express côté backend 
+et Axios côté frontend. 
+
+1. LE PRINCIPE GÉNÉRAL :
+    FRONTEND (React Native, Expo Go)
+    * Le frontend est ton appilcation mobile. Elle affiche une interface et fait des requêtes HTTP au serveur backend pour récupérer
+    ou envoyer des données (comme un login, un message, etc).
+    * Ces requêtes sont faites avec Axios, une librairie JS qui simplifie les appels réseau.
+
+    BACKEND (Express + TypeScript)
+    * Le backend est un serveur Express. Il attend qu'un client (comme l'application mobiel) appelle certaines routes HTTP( GET, POST, etc.) pour y répondres 
+    avec des données(JSON).
+    * Chaque route Express est comme une porte d'entrée vers une logique spécifiques : créer un user, récupérer un profil, etc.
+
+
+2. DÉCOMPOSITION DE LA Communication :
+    Exemple : App mobile appelle GET /user
+    Étape A : Le frontend veut appeler l'API.
+
+    //frontend/Api.ts
+    import axios from 'axios';
+
+    export const api = axios.create({
+        baseURL: 'http://nb.nb.nb.nb:3000', //adresse du backend sur le réseau
+    });
+
+    //frontend/App.ts
+    useEffect(() => {
+        api.get('/user') // appelle la route GET /user du backend
+            .then(res => setUser(res.data)) // récupère la réponse JSON
+            .catch(err => console.log(err))
+    }, []);
+
+    Étape B : Le backend reçoit la requête.
+    //backend.index.ts
+    import express { Request, Response } rom 'express';
+    
+    const server = express();
+    server.use(express.json());
+
+    server.get('/user', (req: Request, res: Response) => {
+        res.send({ name: 'Jean', age: 28}): //réponse renvoyée au frondend
+    });
+
+3. QUI FAIT QUOI ? (Liens clairs):
+
+Côté Frontend                   Côté Backend
+
+axios.get('/user')              server.get('/user', ...)
+Fait une requête réseau HTTP    Crée une route qui attend une requête
+Reçoit la réponse JSON          Envoie une réponse JSON avec res.send()
+
+4. DÉTAILS TECHNIQUE EXPRESS :
+    Création du serveur :
+        const server = express();
+
+    MIddleware pour parser le JSON :
+        server.user(express.json());
+
+    Création de routes :
+        server.get('/user', (req, res) => {...});
+        server.post('/login', (req, res) => {...});
+
+    Démarrage du serveur :
+        server.listen(3000, () => console.log('Serveur Démarré));
+    
+5. DÉTAILS TECHNIQUES AXIOS :
+    Création de l'instance :
+        export const api = axios.creae({
+            baseURL: 'http://nb.nb.nb.nb:3000',
+        });
+
+    Appels API :
+        api.get('/user')
+        api.post('/login'), {email, password}
+
+6 SCHEMA VISUEL SIMPLIFIÉ :
+    📱 App Mobile
+    ↓ axios.get('/user')
+    🌐 Requête HTTP GET → http://nb.nb.nb.nb:3000/user
+
+    🖥️ Serveur Express
+    ↑ Route GET /user
+    → Traite la requête
+    → Renvoie un JSON : { name: 'Jean' }
+
+    📱 App Mobile
+    ← Réception de { name: 'Jean' }
+    → Affichage sur l’écran
+
+
+
+POUR RÉSUMÉ SIMPLEMENT 
+    * Express = serveur qui attend des requêtes HTTP ( des "routes")
+    * Axios = client HTTP dans ton app mobile qui envoie des requêtes vers ce serveurs
+    * La baseURL de axios doit correspondre à ladresse du serveur backend (IP local de ton PC)
+    * Le type de requête (GET, POST, etc) et le chemin (/user, /login) doivent correspondre entre le client et le serveur.
