@@ -1,0 +1,88 @@
+Objectif actuellement : 
+    Créer :
+        1. Une base de données PostgreSQL
+        2. Une table users
+        3. Des routes backend pour manipuler les utilisateurs
+        4. Des tests via Postman
+        5. Et plus tard, connecter ça au frontend mobile
+
+
+1. CRÉER UNE BASE DE DONNÉES POSTGRESQL :
+    Dans le terminal :
+        psql postgres
+
+    Puis dans psql :
+        CREATE DATABASE HorsesInShapelite;
+
+2. CRER UNE TABLE USERS
+    Dans psql connecté à HorsesInShapelite :
+        CREATE TABLE users (
+            id SERIAL PRIMARY KEY,
+            username VARCHAR(50) NOT NULL UNIQUE,
+            email VARCHAR(100) NOT NULL UNIQUE,
+            password TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT NOW()
+        );
+
+    ce qui est fait ici :
+        * id : identifiant unique auto-incrémenté
+        * username : nom d'utilisateur
+        * email : email de connexion
+        * password : mot de passe (crypté plus tard)
+        * created_at : date de Création
+
+3. CONNECTER EXPRESS À POSTGRESQL :
+    Installer pg (postgreSQL client pour node)
+
+    Dans le dossier backend:
+        npm install pg
+
+    Créer un fichier db.ts :
+        import { Pool } from 'pg';
+
+        export const db = new Pool({{
+            user: 'pkn',
+            host: 'localhost',
+            database: 'horsesinshape',
+            password: 'ton_mot_de_passe_pg',
+            port: 5432,
+        }})
+
+4. AJOUTER UNE ROUTE POUR CRÉER UN utilisateur
+    Créer un dossier routes/ fichiers users.ts que tu vas importer ensuite dans index.ts
+
+        import { Router }  from 'express';
+        import { db } from '../database/db';
+
+        const router = Router();
+
+        router.post('/', async (req, res) => {
+            const { username, email, password } = req.body;
+
+            try {
+                const result = await db.query(
+                    'INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING *',
+                    [username, email, password]
+                );
+                res.status(201).send(result.rows[0]);
+            } catch (err) {
+                console.error('❌ Erreur PostgreSQL :', err); 
+                res.status(500).send({ error: `Erreur lors de la création de l'utilisateur`});
+            }
+        });
+
+        export default router;
+
+
+5. TESTER VIA POSTMAN :
+    * URL : http://localhost:3000/users
+    * méthode : post
+    * body -> JSON :
+        {
+            "username": "jhon",
+            "email": "jhon@gmail.com",
+            "password": "123"
+        }
+
+
+Si tout fonctionne, je reçois un 201 avec le user en retour.

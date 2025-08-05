@@ -32,3 +32,18 @@ Synthèse du projet HorsesInShape-lite
 
 A ce stade, j'ai un backend qui tourne et qui communique parfaitement avec mon front sur téléphone. Ce socle solide me permet maintenant d'ajouter une vrai logique métier (gestiion utilisateur ) en base de données.
 
+EXPLICATION GLOBALE DU FONCTIONNEMENT ACTUEL - - -
+
+    * Backend (Express ou NestJs) : C'est ton serveur local Node.js qui écoute sur ton pc (IP local) sur un port (3000). Il expose une API (ici simple GET /)
+    que tu peux appeler depuis d'autres appareils sur le même réseau (ton t"l"phone par exemple).
+    Le backend peut envyer des données, accéder à la base de données, gérer la logique métier.
+    * Frontend (React Native + Expo Go): C'est ton application mobile. Elle tourne sur ton téléphone grâce à Expo Go. L'app fait des requêtes HTTP (avec axios) vers ton backend en utilisant l'IP local de ton pc,
+    ce qui lui permet d'afficher des données dynamiques (ex: message reçu). Le frontend affiche ces données dans une interface mobile native.
+    * Connexion réseau: ton backend écoute sur 0.0.0.0 ou ton IP local, donc il est visible par ton téléphone qui est sur le même WI-FI. Expo Go facilite le développement mobiel en te permettant de voir les changements en temps réel sur le 
+    téléphone sans compilaton lourde.
+
+POURQUOI ON FAIT ÇA ?
+    * Ça permet de séparer la logique métier (backend) de la présentation (frontend).
+    * Ton téléphone peut accéder à la vraie sources de données (backend local) sans tout installer dessus.
+    * u peux développer la backend et le frontend en même temps, tester rapidement sur mobile.
+    * Ça reproduit un vrai cas de projet full-stack moderne.
