@@ -47,3 +47,36 @@ POURQUOI ON FAIT ÇA ?
     * Ton téléphone peut accéder à la vraie sources de données (backend local) sans tout installer dessus.
     * u peux développer la backend et le frontend en même temps, tester rapidement sur mobile.
     * Ça reproduit un vrai cas de projet full-stack moderne.
+
+
+
+
+
+
+
+
+
+    ------------------------------  À faire maintenant ---------------------------
+
+    1. Création de compte (POST /users/register)
+        Tu récupères username, email, password.
+        Tu vérifies que l’email n’existe pas déjà dans la base.
+        Tu haches le mot de passe (déjà fait avec bcrypt).
+        Tu enregistres le nouvel utilisateur.
+        (Optionnel mais bien) Tu envoies un email de confirmation.
+
+2. Connexion (POST /users/login)
+        L’utilisateur entre son email + mot de passe.
+        Tu cherches l’utilisateur par email dans la base.
+        Tu compares le mot de passe fourni avec celui haché en base (bcrypt.compare).
+        Si c’est correct, tu génères un token (JWT par ex.) pour maintenir la session.
+        Tu renvoies le token au client (ton app mobile).
+
+3. Routes protégées
+        Pour accéder à certaines données (profil, données perso, etc.), il faut que le client envoie le token dans l’en-tête Authorization.
+        Le backend vérifie ce token avant d’autoriser l’accès.
+
+📌 En résumé :
+Maintenant qu’on a le CRUD brut, on va ajouter une vraie logique d’authentification.
+La prochaine étape serait donc d’implémenter register + login avec bcrypt et JWT.
+

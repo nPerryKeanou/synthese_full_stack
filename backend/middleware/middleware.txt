@@ -1,0 +1,19 @@
+1. Qu'est ce qu'un middleware de validation ?
+    * Middleware = une fonction qui s'intercale dans la chaîne de traitement d'une requête Express, avant le contrôleur final.
+    * Sa mission : valider les données envoyées par le client (dans req.body, req.params, req.query).
+    * S'il y a une erreur (ex/ email mal formé, champs manquants), le middleware stoppe la requête et renvoie une erreur au client.
+    * Sinon, il laisse passer la requête au contrôleur.
+
+2. Pourquoi un middleware de validation est utile ici ?
+    * Tu centralises la validation à un seul endroit.
+    * Tu évites de mélager la validation et la logique métier dans ton contrôleur.
+    * Ton contrôleur devient plus clair et s'occupe uniquement de traiter les données déjà validées.
+    * Tu peux réutiliser ce middleware pour valider d'autres routes (ex: mise à jours utilisateur, connexion, etc.) simplement en changeant les règles de validation.
+
+3. Comment un middleware de validation est réutilisable pour d'autres champs ?
+    * Avec une librairie comme express-validator, tu définies des règles claires sur les champs (email, password, username...) dans un middleware.
+    * Tu peux créer des middlewares spécifiques selon la route :    
+        * Un middleware pour la création d'un utilisateur (tout les champs obligatoires).
+        * Un autre pour la mise à jours (peut-être certains champs optionnels).
+    * Cela évite la duplication et centralise la validation, donc plus simple à maintenir.
+
