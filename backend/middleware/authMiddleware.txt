@@ -1,0 +1,108 @@
+import { Request, Response, NextFunction } from "express";
+import jwt from "jsonwebtoken";
+
+//vérifie le token d'accés
+export const authenticateAccessToken = (req: Request, res: Response , next: NextFunction) => {
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];//"Bearer TOKEN"
+
+    if(!token){
+        return res.status(401).json({error: "Accès refusé, token manquant."});
+    }
+
+    try{
+        const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
+        (req as any).user = decoded; // On stocke l'info utilisateur pour la suite
+        next();
+    }catch(err){
+        return res.status(403).json({error: "Token invalide ou expiré"});
+    }
+}
+
+//Vérifie le token de rafraîchissement
+export const authenticateRefreshToken = (req: Request, res: Response, next: NextFunction) => {
+    const { refreshToken } = req.body; //en général, 
+
+    if(!refreshToken){
+        return res.status(401).json({error: "Refresh token manquant"});
+    }
+
+    try{
+        const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET as string);
+        (req as any).user = decoded;
+        next();
+    }catch(err){
+        return res.status(403).json({error: "Refresh token invalide ou expiré"});
+    }
+};
+
+--------------------------------------------------------------------------------------
+
+import { Request, Response, NextFunction } from "express";
+import jwt from "jsonwebtoken";
+
+* BUT : importer les types de Express pour typer les arguments (req, res, next) et importer jsonwebtoken pour vérifier le Jwt.
+* NextFunction est une fonction spéciale qui permet de paser au middleware suivant.
+
+export const authenticateAccessToken = (re: Request, res: Response, next: NextFunction) => {}
+
+* On définit une fonction nommée authenticateAccesToken.
+* Elle prend 3 paramètres :
+    1. req -> La requête HTTP envoyée par le cliant (ici, ton mobile).
+    2. res -> la réponse que le server renverra.
+    3. next -> permet de passer au middleware suivent si tout es correct.
+
+const authHeader = req.headers["authorization"];
+const token = authHeader && authHeader.split(" ")[1]; // "Bearer TOKEN"
+
+* authHeader récupère le header Authoriatiion de la requête.
+* On suppose que le header a la forme " Bearer <token>".
+* split(" ")[1] récupère uniquement le token (après "Bearer").
+
+if(!token){
+    return res.status(401).json({error: "Accès refusé, token manquant"});
+}
+
+* Si aucun token n'est trouvé -> on renvoie 401 Unauthorized.
+* On arrête la suite du middleware avec return.
+
+try{
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
+    (req as any).user = decoded; // On stock l'info utilisateur pour la suite
+    next();
+}catch(err){
+    return res.status(403).json({error: "Token invalide ou expiré});
+}
+
+* jwt.verify() vérifie que le token est valide et n'a pas expiré.
+* Si valide -> on stock l'info de l'utilisateur dans req.user pour que les routes suivantes puissent y accéde.
+* next() -> on passe au middleware où a route suivante.
+* Si le token est invalide -> On renvoie 403 Forbidden.
+
+
+----------------------------------------------------------------------
+
+export const authenticateRefreshToken = (req: Request, res: Response, next: NextFunction) => {
+    const { refreshToken } = req.body; // en général envoyé dans le body ( ou un cookie sécurisé)
+}
+
+* ici, on récupère le refreshToken dans le corps de la requête 'ou éventuellement dans un cookie sécurisé).
+* Le refreshToken n'est pas envoyé dans les header comme l'accesToken;
+
+if(!refreshToken){
+    return res.status(401.json({error: "Refresh token manquant"}));
+}
+
+* Vérification simple: si pas de refreshToken -> on bloque.
+
+try {
+        const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET as string);
+        (req as any).user = decoded;
+        next();
+    } catch (err) {
+        return res.status(403).json({ error: "Refresh token invalide ou expiré" });
+    }
+
+* On vérifie le refreshToken avec un secret spécifique (JWT_REFRESH_SECRET)
+* Si valide -> on stocke l'info utilisateur dans req.user
+* Sinon -> 403 Forbidden.
