@@ -1,0 +1,62 @@
+1. Connexion (Login)
+
+    Champs à prévoir :
+    Email (input texte avec clavier email)
+    Mot de passe (input sécurisé, caché)
+    Bouton de connexion
+    Lien "Mot de passe oublié ?" (optionnel mais recommandé)
+
+2. Création de compte (Register / Sign up)
+
+    Champs à prévoir :
+    Nom / prénom (facultatif selon ton API)
+    Email
+    Mot de passe
+    Confirmation du mot de passe
+    Bouton d’inscription
+    Lien vers connexion si déjà un compte
+
+3. Éléments communs aux deux
+
+    Logo ou nom de l’application (en haut → branding)
+    Message d’erreur (si email ou mot de passe incorrect, ou champ vide)
+    Loader (spinner ou bouton en "loading") pendant l’appel API
+    Redirection vers l’écran principal si la connexion/inscription réussit
+
+4. Optionnel mais courant
+
+    Connexion sociale (Google, Facebook, Apple) → pas obligatoire au début.
+    Checkbox "se souvenir de moi" ou gestion automatique du token refresh côté front.
+
+5. UX (expérience utilisateur)
+
+    Champs bien espacés (touch-friendly).
+    Utiliser le clavier adapté (ex. email → clavier email).
+    Boutons bien visibles (couleur de ton branding).
+    Navigation facile entre Login ↔ Register.
+
+Exemple d’écran simple (Login) en pseudo-design :
+[Logo App]
+
+Email: [__________________]
+Mot de passe: [___________]
+
+[ Connexion ]
+
+Mot de passe oublié ?
+
+Pas encore de compte ? [Créer un compte]
+
+
+
+Exemple d’écran simple (Register) :
+[Logo App]
+
+Nom: [__________________]
+Email: [__________________]
+Mot de passe: [___________]
+Confirmer mot de passe: [___________]
+
+[ Créer un compte ]
+
+Déjà inscrit ? [Se connecter]
