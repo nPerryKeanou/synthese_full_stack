@@ -1,0 +1,15 @@
+Un projet React Native + TypeScript + Tailwind -> Expo est parfait pour ça.
+
+Étapes :
+    1. Installer Expo CLI globalement :
+        npm install -g expo-cli
+    ou 
+        npx create-expo-app@latest
+    2. Créer le projet avec TypeScript :
+        npx create-expo-app MonApp --template
+    3. Lancer le projet : 
+        cd MonApp
+        npx expo start
+    -> Cela ouvre une page web avec un QR code?
+    -> Sur le gsm, install Expo globalement(play store)
+    -> Scanne le QR code -> l'app se lance en direct.
