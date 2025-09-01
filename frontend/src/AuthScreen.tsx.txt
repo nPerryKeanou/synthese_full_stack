@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: '700',
     marginBottom: 6,
-    textAlign: 'center',
+    textAlign: 'center', //Définit comment les enfants sont alignés horizontalement (dans l'axe seconaire)
   },
   subtitle: {
     fontSize: 14,
@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   switchRow: {
-    flexDirection: 'row',
+    flexDirection: 'row',     // Définit la direction principale dans laquelle les enfants sont placés.
     justifyContent: 'center',
     marginTop: 18,
   },
