@@ -1,0 +1,382 @@
+// src/screens/AuthScreen.tsx
+// Écran d'authentification unique avec bascule Login/Register
+// - Style: React Native StyleSheet (pas de Tailwind)
+// - Requêtes: fetch() minimal (modifiable vers axios plus tard)
+// - Remplace DEFAULT_API_URL par l'IP locale de ton PC accessible depuis ton téléphone
+
+import React, { useState, useCallback } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from 'react-native';
+
+// Types de réponse API (à adapter à ton backend si besoin)
+type AuthResponse = {
+  accessToken: string;
+  refreshToken: string;
+  user?: any;
+  message?: string;
+};
+
+type Props = {
+  // Callback optionnelle à appeler en cas de succès (ex: enregistrer les tokens, naviguer)
+  onAuthSuccess?: (payload: AuthResponse) => void;
+  // Permet de surcharger l'URL de base au besoin
+  apiBaseUrl?: string;
+};
+
+// ⚠️ Remplace par l'IP locale de ton PC (ex: "http://192.168.1.15:3000")
+const DEFAULT_API_URL = 'http://192.168.1.15:3000';
+
+export default function AuthScreen({ onAuthSuccess, apiBaseUrl = DEFAULT_API_URL }: Props) {
+  // --- États du formulaire
+  const [isLogin, setIsLogin] = useState(true); // true = mode Connexion, false = mode Inscription
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // --- Validation simple
+  const isEmailValid = (e: string) => /\S+@\S+\.\S+/.test(e);
+  const canSubmit = isLogin
+    ? isEmailValid(email) && password.length >= 6
+    : name.trim().length > 0 && isEmailValid(email) && password.length >= 6 && password === confirm;
+
+  // --- Bascule Login/Register
+  const switchMode = useCallback(() => {
+    setIsLogin(prev => !prev);
+    setError(null);
+  }, []);
+
+  // --- Soumission
+  const handleSubmit = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const path = isLogin ? '/auth/login' : '/auth/register';
+      const body = isLogin
+        ? { email, password }
+        : { name: name.trim(), email, password };
+
+      const res = await fetch(`${apiBaseUrl}${path}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+
+      const data: AuthResponse = await res.json();
+
+      if (!res.ok) {
+        const msg = (data && (data.message as string)) || 'Une erreur est survenue.';
+        setError(msg);
+        return;
+      }
+
+      // Succès
+      onAuthSuccess?.(data);
+      Alert.alert('Succès', isLogin ? 'Connexion réussie' : 'Compte créé !');
+      setPassword('');
+      setConfirm('');
+    } catch (e: any) {
+      setError(e?.message ?? 'Impossible de contacter le serveur.');
+    } finally {
+      setLoading(false);
+    }
+  }, [isLogin, email, password, name, confirm, apiBaseUrl, onAuthSuccess]);
+
+  return (
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+        <Text style={styles.title}>{isLogin ? 'Se connecter' : 'Créer un compte'}</Text>
+        <Text style={styles.subtitle}>
+          {isLogin ? 'Ravi de te revoir 👋' : 'Bienvenue ! Crée ton compte pour commencer.'}
+        </Text>
+
+        {!isLogin && (
+          <View style={styles.field}>
+            <Text style={styles.label}>Nom</Text>
+            <TextInput
+              placeholder="Ton nom"
+              value={name}
+              onChangeText={setName}
+              style={styles.input}
+              autoCapitalize="words"
+              returnKeyType="next"
+            />
+          </View>
+        )}
+
+        <View style={styles.field}>
+          <Text style={styles.label}>Email</Text>
+          <TextInput
+            placeholder="exemple@mail.com"
+            value={email}
+            onChangeText={setEmail}
+            style={styles.input}
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="email-address"
+            returnKeyType="next"
+          />
+        </View>
+
+        <View style={styles.field}>
+          <Text style={styles.label}>Mot de passe</Text>
+          <TextInput
+            placeholder="••••••••"
+            value={password}
+            onChangeText={setPassword}
+            style={styles.input}
+            secureTextEntry
+            returnKeyType={isLogin ? 'done' : 'next'}
+          />
+        </View>
+
+        {!isLogin && (
+          <View style={styles.field}>
+            <Text style={styles.label}>Confirmer le mot de passe</Text>
+            <TextInput
+              placeholder="••••••••"
+              value={confirm}
+              onChangeText={setConfirm}
+              style={styles.input}
+              secureTextEntry
+              returnKeyType="done"
+            />
+          </View>
+        )}
+
+        {error && <Text style={styles.error}>{error}</Text>}
+
+        <TouchableOpacity
+          style={[styles.button, !canSubmit || loading ? styles.buttonDisabled : null]}
+          onPress={handleSubmit}
+          disabled={!canSubmit || loading}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.buttonText}>
+            {loading ? 'Patiente...' : isLogin ? 'Se connecter' : 'Créer un compte'}
+          </Text>
+        </TouchableOpacity>
+
+        {isLogin && (
+          <TouchableOpacity onPress={() => Alert.alert('Mot de passe', 'TODO: lien vers réinitialisation')}>
+            <Text style={styles.link}>Mot de passe oublié ?</Text>
+          </TouchableOpacity>
+        )}
+
+        <View style={styles.switchRow}>
+          <Text style={styles.switchText}>
+            {isLogin ? 'Pas encore de compte ?' : 'Déjà inscrit ?'}
+          </Text>
+          <TouchableOpacity onPress={switchMode}>
+            <Text style={styles.switchLink}>
+              {isLogin ? 'Créer un compte' : 'Se connecter'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        <Text style={styles.hint}>
+          Astuce: assure-toi que {`"${apiBaseUrl}"`} est l’URL locale de ton serveur accessible depuis le téléphone.
+        </Text>
+      </ScrollView>
+    </KeyboardAvoidingView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flexGrow: 1,
+    padding: 24,
+    paddingTop: 80,
+    backgroundColor: '#FFFFFF',
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: '700',
+    marginBottom: 6,
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 24,
+  },
+  field: {
+    marginBottom: 14,
+  },
+  label: {
+    fontSize: 14,
+    marginBottom: 6,
+    color: '#333',
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#DDD',
+    backgroundColor: '#FAFAFA',
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    borderRadius: 12,
+    fontSize: 16,
+  },
+  error: {
+    color: '#B00020',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  button: {
+    backgroundColor: '#1E88E5',
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  buttonDisabled: {
+    opacity: 0.6,
+  },
+  buttonText: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  link: {
+    marginTop: 12,
+    textAlign: 'center',
+    textDecorationLine: 'underline',
+    fontSize: 14,
+  },
+  switchRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 18,
+  },
+  switchText: {
+    fontSize: 14,
+    color: '#333',
+  },
+  switchLink: {
+    fontSize: 14,
+    fontWeight: '700',
+    marginLeft: 6,
+    textDecorationLine: 'underline',
+  },
+  hint: {
+    fontSize: 12,
+    color: '#888',
+    textAlign: 'center',
+    marginTop: 24,
+  },
+});
+
+Explication du code, ligne par ligne (claire & utile):
+
+    Je commente par blocs très courts pour rester lisible. Tout le code est visible dans le panneau à droite.
+
+Imports
+    useState, useCallback : hooks React pour l’état local et les fonctions mémorisées.
+    View, Text, TextInput, etc. : composants natifs RN.
+    KeyboardAvoidingView, Platform : pour éviter que le clavier recouvre les inputs.
+    ScrollView : permet de scroller si l’écran est petit.
+
+Types
+    AuthResponse : forme attendue de la réponse serveur (tokens + user). Adapte si ton backend renvoie d’autres champs.
+    Props : propriétés du composant (un callback onAuthSuccess et apiBaseUrl pour l’URL de ton API).
+
+Constante d’URL
+    DEFAULT_API_URL : mets l’IP locale de ton PC (ex: http://192.168.1.15:3000). Le téléphone doit être sur le même Wi-Fi.
+
+Composant AuthScreen
+    onAuthSuccess, apiBaseUrl = DEFAULT_API_URL : destructure les props, avec une valeur par défaut pour l’URL.
+
+États
+    isLogin : vrai → mode Connexion ; faux → mode Inscription.
+    name, email, password, confirm : valeurs des inputs.
+    loading : gère le spinner/disabled sur le bouton pendant l’appel API.
+    error : message d’erreur à afficher sous le formulaire.
+
+Validation simple
+    isEmailValid : petite regex “suffisante pour démarrer”.
+    canSubmit : conditions de validation selon le mode :
+    Login : email valide + password ≥ 6.
+    Register : nom non vide + email valide + password ≥ 6 + confirmation identique.
+
+Bascule de mode
+    switchMode : inverse isLogin et efface l’erreur. useCallback évite de recréer la fonction à chaque rendu.
+
+Soumission
+    handleSubmit (async) :
+        setLoading(true) et setError(null) : prépare l’appel.
+    path : /auth/login ou /auth/register selon isLogin.
+    body : JSON envoyé au backend. En register, on envoie aussi name.
+    fetch(...) : POST sur apiBaseUrl + path, Content-Type: application/json.
+    res.json() : lit la réponse.
+    !res.ok : si le code HTTP n’est pas 2xx → récupère message s’il existe, sinon message générique → setError.
+    En succès :
+    onAuthSuccess?.(data) : si un parent a passé un callback, on lui donne les tokens pour qu’il les stocke (SecureStore plus tard).
+        Alert.alert(...) : petit feedback visuel.
+    on vide password et confirm.
+    catch : erreur réseau → message lisible.
+    finally : setLoading(false) quoi qu’il arrive.
+
+Rendu
+    KeyboardAvoidingView : sur iOS, pousse l’UI quand le clavier est visible.
+    ScrollView : le contenu défile si nécessaire (petits écrans).
+    title / subtitle : texte qui change selon le mode.
+    Bloc Nom : seulement en Register (!isLogin && ...).
+    Bloc Email : autoCapitalize="none", keyboardType="email-address".
+    Bloc Mot de passe : secureTextEntry pour cacher.
+    Bloc Confirmation : seulement en Register.
+    error && <Text style={styles.error}> : affiche l’erreur si elle existe.
+    Bouton :
+    style désactivé si !canSubmit || loading.
+    texte qui change : “Se connecter” / “Créer un compte” / “Patiente…”.
+    Mot de passe oublié ? : visible uniquement en Login (placeholder pour brancher ton flow).
+    Switch Login/Register : petite ligne avec lien souligné qui appelle switchMode.
+    Hint : rappelle l’URL API pour éviter le piège du localhost.
+
+Styles
+    container : padding, fond blanc, flexGrow pour que ScrollView se centre bien.
+    title, subtitle : typographie simple.
+    field, label, input : espacement + bordure claire + arrondis pour une UI propre.
+    error : rouge pour l’erreur.
+    button, buttonDisabled, buttonText : bouton bleu, arrondi, gras.
+    link, switchRow, switchText, switchLink : liens sous l’action principale.
+    hint : petit texte gris en bas.
+
+Comment tester rapidement
+
+Dans App.tsx, importe et rends <AuthScreen apiBaseUrl="http://TON.IP.LOCALE:3000" />.
+Démarre ton backend Express : assure-toi qu’il écoute sur 0.0.0.0.
+Lance Expo : npx expo start → scanne le QR code avec Expo Go.
+Essaie Register puis Login. Observe les requêtes côté serveur.
+
+
+--------------------------------------------------------------
+--------------------------------------------------------------
+--------------------------------------------------------------
+
+App.tsx : point d’entrée. Pour tester vite, tu peux juste afficher AuthScreen.
+
+// App.tsx
+import React from "react";
+import AuthScreen from "./src/screens/AuthScreen";
+
+export default function App() {
+  return <AuthScreen apiBaseUrl="http://192.168.1.15:3000" />;
+}
+
+--------------------------------------------------------------
+--------------------------------------------------------------
+--------------------------------------------------------------
+
