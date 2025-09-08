@@ -37,3 +37,42 @@
         ° Lance la DB, le serveur Express, et l'app mobile.
         ° Faire un login/register depuis l'app -> suivre la requête jusqu'à la DB -> regarde la réponse dans l'app.
     
+
+####################################################################################################################################################
+
+ORGANISATION DU FRONT REACT NATIVE
+- - - - - - - - - - - - - - - - - 
+
+1. Service (Axios & API calls)
+    ° Création du dossier servies/
+    ° Dans ce dossier, on met un fichier par "domaine" (ex: authService.ts, userService.ts).
+    ° Chaque fichier contient les fonctions qui appellent ton back via Axios (login, register, getProfil, etc).
+    ° Avantage: ton UI n'a pas besoin de savoir "comment" l'appel est fait, elle utilise jsute authServices.login(...).
+
+2. Context (gestion de l'état global, ex. AuthContect)
+    ° Comme tu as une app mobile, l'utilisateur sera probablement connecté sur plusieurs écrans.
+    ° Crée un AuthContext (ou un store avec Zustand/Redux pour aller plus loin).
+    ° Ce context contient:
+        .L'état de l'utilisateur (connecté ? Infos du user ? Token ?),
+        .Les fonctions login() et logout() qui utilisent ton authService.
+    ° Avantage: tu centralises la logique d'auth, et tu peux l'utiliser partout dans ton app sans dupliquer du code.
+
+3. UI (screens et components)
+    ° Tes écrans (ex. LoginScreen.tsx, RegisterScreen.tsx) s'occupent uniquement de l'interface:
+        . champs de formulaire,
+        . boutons,
+        . affichage d'erreurs ou succès.
+    ° Quand un bouton est cliqué -> il appelle une fonction du contect (qui lui-même appelle le service).
+    ° Avantage: les écrans ne gèrent pas la logique réseau directement.
+
+Exemple de flux logique:
+    1. LoginScreen -> bouton pressé -> appelle authContect.login(email, password)
+    2. authContext.login -> appelle authService.login(email, password)
+    3. authService.login -> fait la requête Axios vers ton back -> renvoie une réponse
+    4. authContext -> met à jour l'état global (user, token)
+    5. UI -> se met à jour automatiquement (ex: reirection vers HomeScreen)
+
+Avantages de cette structure:
+    . Lisibilité: chaque couche a un rôle clair (UI, état global, API calls)
+    . réutilisable: tes services peuvent être utilisé dans plusieurs contextes (ex: un service userService pour fetch un profil ou uptadte un avatar)
+    . Facile à tester: on peut tester les services séparément, le context séparément, etc.
