@@ -1,0 +1,39 @@
+1. Comprendre le rôle des couches.
+
+    ° Front-end (React Native + TypeScript)
+        -> C'est ton app mobile, l'interface utilisateur. Elle envoie des requêtes HTTP (via Axios) vers ton serveur, et affiche les réponses.
+    ° Back-end (Express + Node.js)
+        -> C'est ton API. Il reçoit les requêtes, vérifie les données, fait appel à la base de données, et renvoie un résultat formaté (souvent JSON).
+    ° Database (SQL)
+        -> C'est là où les utilisateurs sont stockés (login, mot de passe hashé, etc). Le back-end est le seul à dialoguer directement avec elle.
+
+2.  Flux typique d'une requpete.
+
+    Exemple avec login :
+        1. L'utilisateur entre son email/mot de passe dans ton app.
+        2. Ton front envoi une requpete POST/login via Axios.
+        3. Express reçoit la requête -> valide les données -> exécute une requête SQL (via un client type pg, mysql2 ou sequelize).
+        4. La database renvoie la ligne correspondante.
+        5. Express vérifie que le mot de passe est correct, puis génère une réponse (ex. Un JWT ou un objet utilisateur).
+        6. Ton front reçoit la réponse et met à jour l'UI.
+
+3.  Points à vérifier pour connecter les trois.
+
+    ° URL/API: le front doit appeler l'URL du serveur Express (ex. http://localhost:3000/login en dev, une vrai IP/DOMAINE plus tard).
+    ° Middleware: assure-toi qu'Express peut lire le body JSON (express.json()).
+    ° CORS: si ton app tourne en mode dev, il faut autoriser ton front à contacter ton back (cors middleware dans express).
+    ° Connexion DB: ton back doit avoir une connexion stable à la base (pool de connexion recommandé).
+    ° Getion des erreurs: Prévois des réponses claires côté back pour que le front sache quoi afficher.
+
+4.  Étapes pratiques pour tester.
+
+    1. Tester chaque couche isolée:
+        ° Avec curl ou postman, envoie une requpete à ton back -> voir si la DB répond bien.
+        ° Avec ton app React Native, test que les inputs déclenchent bien les appels Axios.
+    2. Brancher le front au back:
+        ° Configure Axios pour pointer vers ton serveur Express.
+        ° Vérifie que tu récupères bien la réponses attendue (ex. console.log coté front).
+    3. Scénario de bout en bout.
+        ° Lance la DB, le serveur Express, et l'app mobile.
+        ° Faire un login/register depuis l'app -> suivre la requête jusqu'à la DB -> regarde la réponse dans l'app.
+    
