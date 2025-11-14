@@ -15,3 +15,6 @@ docker rmi <image_id>
 
 # Supprimer toutes les images inutilisées (confirmé)
 docker image prune -e 
+
+# Construire une image Docker à partir d'un Dockerfile
+docker build
