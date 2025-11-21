@@ -1,0 +1,1 @@
+- qu'est ce que l'état statefull  et est-ce en front ou en back ?

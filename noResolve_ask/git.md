@@ -4,4 +4,7 @@
 
 - à quoi sert le merge ?
 
-Je ne comprend pas le gitflow ?
+- Je ne comprend pas le gitflow ? 
+
+- à quoi sert et comment fonctionne le pull-request ?
+
