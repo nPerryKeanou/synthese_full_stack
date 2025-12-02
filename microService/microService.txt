@@ -1,0 +1,92 @@
+🏗️ 1. Le Principe des Microservices
+Le concept de Microservices est une approche d'architecture logicielle qui s'oppose au modèle monolithique traditionnel.
+
+Caractéristique	Monolithe (Avant)	Microservices (Maintenant)
+Structure	Une seule application massive contenant toute la logique (utilisateurs, produits, commandes, facturation...).	Une collection de petits services indépendants, chacun exécutant un processus unique.
+Déploiement	L'application entière doit être redéployée pour la moindre modification.	Chaque service peut être déployé, mis à jour et géré indépendamment.
+Technologies	Généralement un seul langage et une seule base de données pour tout.	Chaque service peut utiliser la technologie la plus adaptée à sa fonction (ex: Python pour l'IA, Java pour la rapidité, Node.js pour le temps réel).
+Équipe	Une seule grande équipe travaille sur l'ensemble du code.	Des petites équipes (souvent appelées "feature teams") sont responsables de A à Z d'un ou deux services seulement.
+L'Objectif
+
+L'objectif principal des microservices est d'améliorer la scalabilité, la résilience (si un service tombe, le reste de l'application continue de fonctionner), et la vitesse de développement/déploiement.
+
+🚪 2. L'API Gateway : Le Portier du Système
+Lorsque vous avez des dizaines de microservices, les clients (application mobile, site web) ne peuvent pas se connecter directement à chacun. C'est là qu'intervient l'API Gateway.
+
+L'API Gateway est une couche de service unique qui agit comme le point d'entrée frontal de votre architecture. C'est le seul composant qui est exposé à l'extérieur.
+
+Rôles Clés de l'API Gateway
+
+Routage et Orchestration :
+
+Le client envoie une seule requête simple (ex: GET /mon-compte).
+
+L'API Gateway détermine quel microservice interne doit traiter cette requête (ex: le service Utilisateur et le service Historique).
+
+Dans les cas complexes, l'API Gateway peut même orchestrer plusieurs appels internes et agréger les données de différents services avant de renvoyer une réponse unique et formatée au client.
+
+Sécurité et Authentification :
+
+L'API Gateway est le point idéal pour gérer la sécurité. Elle vérifie si l'utilisateur est bien authentifié (vérification du jeton JWT ou de la clé API) avant de transférer la requête aux microservices internes. Cela protège tous les services derrière un seul mur.
+
+Gestion du Trafic :
+
+Elle gère la Limitation de Débit (Rate Limiting) pour empêcher les abus ou les attaques DDoS.
+
+Elle peut gérer la mise en cache de certaines réponses.
+
+En Résumé
+
+Composant	Rôle Clé	Analogie
+Microservice	Exécute une fonction métier unique et spécifique.	Le chef spécialisé (Service Facturation, Service Utilisateur).
+API Gateway	Point d'entrée unique qui achemine, sécurise et agrège les requêtes client.	L'accueil / Le standardiste de l'entreprise.
+En utilisant l'API Gateway, l'application cliente gagne en simplicité, et l'architecture gagne en sécurité et en performance.
+
+
+
+Microservice et port :
+    Dans les microservices (ex: user-service, product-service, order-service), ils utilisent tous les mêmes port dans leurs propre containeur. (ex :3000).
+        * Raison : chaque service est une appplciation nodejs isolé. C'est une convention courante que de démarrer une application sur un port 3000. Puisque chaque serveur vit dans 
+                    son propre environnement, ils peuvent écouter tous sur le port :3000 sans conflits.
+        * Identité sur les reseaux docker : Pour communiquer entre eux (par exemple de la gateway au user-service), les conteneurs utilisent leurs noms de services et le port interne. Le nom de l'identifiant est unique mais pas le port.
+    
+    Ce sont les ports externes qui sont différent :
+    Les ports externes : le Mapping (3001, 3002, 3003).
+        C'est ici qu'intervient la distinction. Les ports, 3001,3002,3003 sont des ports que l'on utilise pour accéder à chaque services depuis la machine hôte.
+        Le fichier docker-compose.yml gère ce mapping:
+            ports:
+                - "3001:3000"  # Format : [Port HÔTE]:[Port CONTENEUR]
+
+            port 3001, c'est le port de l'hote, de la machine.
+            port 3000, c'est le port du microservice.
+            || 'http://localhost:3001' : C'est le fallback. Si vous démarrez le serveur de la Gateway seul sur votre Mac, il suppose qu'il peut trouver le service Users sur le port externe de l'hôte, qui est 3001.
+
+C'est pourquoi les ports du localhost sont différents : ils reflètent le port externe unique que Docker utilise pour éviter les conflits sur votre
+
+
+
+--------------------------------------------------------------
+Avoir configuré les URLs dans votre docker-compose.yml signifie que l'Étape 1 est prête à être finalisée.
+
+Vous devez maintenant éditer le fichier api-gateway/src/app.ts pour y ajouter les configurations de proxy manquantes pour les services Products et Orders.
+
+----------------------------------------------------------------
+
+
+
+Code	Explication	Concept / Rôle dans le Challenge
+import { Request, Response, NextFunction } from 'express';	Importe les interfaces de types d'Express pour garantir que req, res, et next ont la structure attendue.	TypeScript/Express : Permet la typographie stricte des fonctions middleware.
+import jwt from 'jsonwebtoken';	Importe la librairie JWT (JSON Web Token) utilisée pour signer et, ici, vérifier les tokens.	Sécurité : L'outil essentiel pour décoder le token.
+`const JWT_SECRET = process.env.JWT_SECRET		'mysupersecretkey';`
+interface JwtPayload { ... }	Définit la structure attendue du payload (les données utiles) à l'intérieur du token JWT.	TypeScript : Permet à TS de savoir qu'après décodage, l'objet aura au moins les propriétés userId et role.
+export const authenticate = (req: Request, res: Response, next: NextFunction) => { ... };	Exporte la fonction middleware principale. Elle prend les objets de requête (req), de réponse (res), et la fonction de passage (next).	Express Middleware : Le point d'entrée de la logique d'authentification.
+const authHeader = req.headers.authorization;	Tente de récupérer la valeur du header HTTP Authorization. C'est là que le client envoie le JWT, souvent sous la forme Bearer <TOKEN>.	JWT Standard : Emplacement standard du token dans les requêtes API.
+`if (!authHeader		!authHeader.startsWith('Bearer ')) { ... }`
+return res.status(401).json({ message: 'Accès refusé. Token manquant ou mal formé.' });	Si la vérification échoue, la requête est immédiatement bloquée et renvoie une erreur 401 Unauthorized.	Sécurité : Rejette les requêtes non authentifiées.
+const token = authHeader.split(' ')[1];	Sépare la chaîne Bearer <TOKEN> en deux éléments et isole le token réel ([1]).	Extraction : Isole la partie du token nécessaire à la vérification.
+try { ... } catch (error) { ... }	Un bloc try...catch est indispensable car jwt.verify peut lancer une exception si le token est invalide ou expiré.	Gestion d'Erreur : Nécessaire pour gérer les problèmes de sécurité sans faire planter l'application.
+const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;	C'est le cœur de l'authentification. Il vérifie la signature du token avec la JWT_SECRET et s'assure qu'il n'est pas expiré. Si tout est bon, il retourne le payload décodé.	Validation JWT : Confirme que le token est authentique et non altéré.
+req.headers['x-user-id'] = decoded.userId;	Ajoute l'ID utilisateur, extrait du payload décodé, à un nouveau header appelé x-user-id.	Enrichissement (Point 3) : Transmet l'information d'identité au microservice cible.
+req.headers['x-user-role'] = decoded.role;	Ajoute le rôle de l'utilisateur à un nouveau header appelé x-user-role.	Enrichissement (Point 3) : Transmet l'information d'autorisation au microservice cible.
+next();	Si l'exécution arrive ici, l'authentification est réussie. La fonction appelle next() pour permettre à Express de passer au middleware suivant (qui sera le proxy).	Continuation : Laisse la requête atteindre sa destination finale (le proxy pour le routage).
+return res.status(401).json({ message: 'Token invalide ou expiré.' });	Si le try échoue (par exemple, token expiré ou clé secrète incorrecte), cette ligne est exécutée.	Rejet Final : Bloque la requête si la vérification cryptographique échoue.

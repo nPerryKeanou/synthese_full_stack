@@ -1,0 +1,40 @@
+Pourqui ai-je besoin de Express et de http-proxy-middleware ?
+
+* Express.js
+    - c'est la fondation du microservice "...". Il permet de créer un serveur web qui écoute sur un port ( ex : 3000).
+    - Express fournit le mécanisme de base(app.use(), req, res) pour recevoir les requêtes des clients (navigateurs, app mobile) et 
+    appliquer des middlewares(comme le futur middleware d'authentification).
+
+* http-proxy-middleware
+    - C'est le composant qui fait la redirection. Express reçoit la requête, mais ne sais pas quoi en faire.
+    - Cette llibrairie prend la requête Express et à l'intelligence de la dupliquer (proxy) vers une autre adresse
+     (le micro service), d'attendre la réponse, puis de la renvoyer au client initial.
+    - Elle gère tous les détails complexes du proxying pour vous.
+
+En résumé : Express reçoit la requête; http-proxy-middleware la transmet au bon microservice et renvoie la réponse.
+
+
+
+Qu'est-ce qu'un Proxy ?
+
+Un proxy, dans le contexte de l'API Gateway, est un intermédiaire ou un mandatairee.
+    * Rôle : Au lieu que le client (votre application mobile) parle directement au Serveur B (le microservice Users), il parle uniquement
+    au Serveur A (l'API Gateway). L'API Gateway agit comme un pont.
+    * Action : Lorsque l'API Gateway reçoit une requête, elle la transmet au serveur B sans que le Client ne le sache. Elle renvoie ensuite la réponse su serveur B au Client.
+
+C'est ce qu'on appel un Reverse Proxy (proxy inverse). Il protège vos microservices internes et unifie l'accés.
+
+
+
+Qu'est ce que pathRewerite ?
+
+C'est la fonction la plus important de votre 2tape 1 pour que le routage fonctionne correctement.
+
+Le problème est le décalage entre l'URL demandée par le client et l'URL attendue par le microservices.
+Client demande	                Logique de routage de la Gateway	            Ce que le Microservice Users attend
+GET /api/v1/users/profile	    La Gateway redirige vers le service Users...	GET /profile
+Erreur si pas de pathRewrite :	La Gateway envoie...	                        GET /api/v1/users/profile (Erreur 404 dans le microservice)
+
+Le paramêtre pathRewrite est un objet de configuration qui dit au proxy "Avant d'envoyer la requête à la cible, supprime la partie du chemin utilisé pour le routage".
+    * Dans ce cas ci, je dois dire " Partout où tu vois le préfixe /api/v1/users (le chemin utilisé pour intercepter la requpete), remplace-le par une chaine vide ('').
+    * Cela permet de nettoyer l'URL pour qu'elle corresponde exactement à ce que le microservice attend.

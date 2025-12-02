@@ -1,0 +1,15 @@
+- - - " Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.ts(2580)".
+C'est tout à fait normal et c'est une indication que votre environnement TypeScript fonctionne correctement !
+
+1. Pourquoi cette erreur se produit-elle ?
+
+Contexte Node.js : L'objet process est une variable globale standard qui existe lorsque le code s'exécute dans l'environnement Node.js.
+
+Contexte TypeScript : TypeScript (TS) a besoin de savoir à l'avance quelles variables et quelles structures existent. Par défaut, votre projet TS ne connaît pas les types de l'environnement Node.js (il pourrait s'exécuter dans un navigateur, par exemple, où process n'existe pas).
+
+La Solution : Les types Node.js (@types/node) sont des fichiers de définition qui expliquent à TypeScript la structure exacte de l'objet process, de ses propriétés (.env), ainsi que de nombreuses autres fonctions et classes Node.js.
+Que faire ?
+
+Oui, vous devez installer ce paquet uniquement dans le dossier api-gateway.
+
+C'est une dépendance de développement (seulement nécessaire pour que TypeScript fonctionne correctement lors de l'écriture du code, pas pour l'exécution).
