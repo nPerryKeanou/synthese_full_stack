@@ -15,3 +15,7 @@
 
     FROM
 
+## restart: always
+    Sert à indiquer à docker de toujours redémarrer. Peu importe ce qu'il arrive, si on l'éteint nous même ou quoi que ce soit.
+
+
